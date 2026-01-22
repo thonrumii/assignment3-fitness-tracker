@@ -1,5 +1,4 @@
 A. Project Overview
-
 The Fitness Tracker API is a console-based Java application that allows users to manage workouts and exercises.
 It demonstrates advanced Object-Oriented Programming (OOP) principles combined with JDBC database interaction using MySQL.
 
