@@ -6,11 +6,20 @@ import service.ExerciseService;
 import service.WorkoutService;
 import java.util.List;
 import java.util.Scanner;
+import utils.ReflectionUtils;
+import repository.ExerciseRepository;
+import repository.WorkoutRepository;
+import service.IWorkoutService;
+import service.IExerciseService;
 
 public class Main {
 
-    private static final WorkoutService workoutService = new WorkoutService();
-    private static final ExerciseService exerciseService = new ExerciseService();
+    private static final WorkoutRepository workoutRepo = new WorkoutRepository();
+    private static final ExerciseRepository exerciseRepo = new ExerciseRepository();
+
+    private static final IWorkoutService workoutService = new WorkoutService(workoutRepo, workoutRepo, workoutRepo);
+    private static final IExerciseService exerciseService = new ExerciseService(exerciseRepo, workoutRepo, exerciseRepo);
+
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -29,7 +38,9 @@ public class Main {
                 System.out.println("9. Delete Exercise");
                 System.out.println("10. Update Exercise");
                 System.out.println("11. View Exercise By ID");
-                System.out.println("12. Demo: Polymorphism + Interfaces");
+                System.out.println("12. Demo: Reflection + Interfaces default/static");
+                System.out.println("13. Shortest Cardio and Strength workouts");
+                System.out.println("14. View All Workouts sorted by duration");
                 System.out.println("0. Exit");
 
                 System.out.print("Choose option: ");
@@ -48,6 +59,8 @@ public class Main {
                     case 10 -> updateExercise();
                     case 11 -> viewExerciseById();
                     case 12 -> demoOopRequirements();
+                    case 13 -> viewShortestAll();
+                    case 14 -> viewAllWorkoutsSorted();
 
                     case 0 -> {
                         System.out.println("Goodbye!");
@@ -84,10 +97,9 @@ public class Main {
         System.out.println("Workout created successfully!");
     }
 
-    // VIEW ALL
+    // VIEW ALL WORKOUTS
     private static void viewAllWorkouts() throws DatabaseOperationException {
         List<Workout> workouts = workoutService.getAllWorkouts();
-
         for (Workout w : workouts) {
             System.out.println(
                     w.getId() + " | " +
@@ -96,6 +108,37 @@ public class Main {
                             w.getDuration() + " min"
             );
         }
+    }
+
+    // VIEW ALL WORKOUTS SORTED
+    private static void viewAllWorkoutsSorted() throws DatabaseOperationException {
+        List<Workout> workouts = workoutService.getAllWorkoutsSortedByDuration();
+        for (Workout w : workouts) {
+            System.out.println(
+                    w.getId() + " | " +
+                            w.getName() + " | " +
+                            w.getWorkoutType() + " | " +
+                            w.getDuration() + " min"
+            );
+        }
+    }
+
+    private static void viewShortestAll() throws DatabaseOperationException {
+        Workout w1 = workoutService.getShortestS();
+        Workout w2 = workoutService.getShortestC();
+        System.out.println(
+                w1.getId() + " | " +
+                        w1.getName() + " | " +
+                        w1.getWorkoutType() + " | " +
+                        w1.getDuration() + " min"
+        );
+        System.out.println(
+                w2.getId() + " | " +
+                        w2.getName() + " | " +
+                        w2.getWorkoutType() + " | " +
+                        w2.getDuration() + " min"
+        );
+
     }
 
     // VIEW BY WORKOUT ID
@@ -250,28 +293,13 @@ public class Main {
         System.out.println("Exercise deleted!");
     }
 
-    //POLYMORPHISM
+    //REFLECTION
     private static void demoOopRequirements() {
-        System.out.println("\n--- DEMO: Polymorphism + Interfaces ---");
-
         Workout w1 = new CardioWorkout("Demo Cardio", 20);
-        Workout w2 = new StrengthWorkout("Demo Strength", 30);
 
-        // Polymorphism: calling overridden methods via base reference
-        System.out.println("Polymorphism:");
-        System.out.println(w1.getWorkoutType() + " calories = " + w1.calculateCalories());
-        System.out.println(w2.getWorkoutType() + " calories = " + w2.calculateCalories());
-
-        // Interfaces:
-        System.out.println("\nInterfaces:");
-        w1.validate();
-        w2.validate();
-        System.out.println("validate() called successfully");
-
-        System.out.println("Tracking info 1: " + w1.getTrackingInfo());
-        System.out.println("Tracking info 2: " + w2.getTrackingInfo());
-
-        System.out.println("--- END DEMO ---\n");
+        ITrackable.printTrackingHeader();   // static method
+        System.out.println(w1.getTrackingInfoPretty()); // default method
+        System.out.println("\n--- Reflection Demo ---");
+        ReflectionUtils.printClassInfo(w1);
     }
-
 }

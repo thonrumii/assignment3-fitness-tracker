@@ -4,15 +4,25 @@ import exception.DatabaseOperationException;
 import exception.InvalidInputException;
 import exception.ResourceNotFoundException;
 import model.Exercise;
+import model.Workout;
+import repository.ExerciseQueries;
 import repository.ExerciseRepository;
-import repository.WorkoutRepository;
+import repository.CrudRepository;
 
 import java.util.List;
 
-public class ExerciseService {
+public class ExerciseService implements IExerciseService {
 
-    private final ExerciseRepository exerciseRepository = new ExerciseRepository();
-    private final WorkoutRepository workoutRepository = new WorkoutRepository();
+    private final CrudRepository<Exercise> exerciseRepository;
+    private final ExerciseQueries exerciseQueries;
+    private final CrudRepository<Workout> workoutRepository;
+
+    public ExerciseService(ExerciseRepository exerciseRepository,
+                           CrudRepository<Workout> workoutRepository, ExerciseQueries exerciseQueries) {
+        this.exerciseRepository = exerciseRepository;
+        this.workoutRepository = workoutRepository;
+        this.exerciseQueries = exerciseQueries;
+    }
 
     // CREATE
     public void addExercise(int workoutId, Exercise exercise)
@@ -38,7 +48,9 @@ public class ExerciseService {
             throw new ResourceNotFoundException("Workout not found");
         }
 
-        exerciseRepository.create(workoutId, exercise);
+        exercise.setWorkoutId(workoutId);
+        exerciseRepository.create(exercise);
+
     }
 
     // UPDATE
@@ -65,7 +77,7 @@ public class ExerciseService {
         if (existing == null) {
             throw new ResourceNotFoundException("Exercise not found");
         }
-
+        exercise.setWorkoutId(existing.getWorkoutId());
         exerciseRepository.update(id, exercise);
     }
 
@@ -95,7 +107,7 @@ public class ExerciseService {
             throw new InvalidInputException("Invalid workout id");
         }
 
-        return exerciseRepository.getByWorkoutId(workoutId);
+        return exerciseQueries.getByWorkoutId(workoutId);
     }
 
     // DELETE
