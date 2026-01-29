@@ -9,7 +9,13 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseRepository {
+public class ExerciseRepository implements CrudRepository<Exercise>, ExerciseQueries {
+
+    // Generic CRUD method
+    @Override
+    public void create(Exercise exercise) throws DatabaseOperationException {
+        create(exercise.getWorkoutId(), exercise);
+    }
 
     // CREATE
     public void create(int workoutId, Exercise exercise) throws DatabaseOperationException {
@@ -37,6 +43,7 @@ public class ExerciseRepository {
     }
 
     // GET ALL
+    @Override
     public List<Exercise> getAll() throws DatabaseOperationException {
         List<Exercise> exercises = new ArrayList<>();
         String sql = "SELECT * FROM exercises";
@@ -68,6 +75,7 @@ public class ExerciseRepository {
     }
 
     // GET BY ID
+    @Override
     public Exercise getById(int id) throws DatabaseOperationException {
         String sql = "SELECT * FROM exercises WHERE id = ?";
 
@@ -133,6 +141,7 @@ public class ExerciseRepository {
     }
 
     // UPDATE
+    @Override
     public void update(int id, Exercise exercise) throws DatabaseOperationException {
         String sql = "UPDATE exercises SET name = ?, sets = ?, reps = ? WHERE id = ?";
 
@@ -153,6 +162,7 @@ public class ExerciseRepository {
     }
 
     // DELETE
+    @Override
     public void delete(int id) throws DatabaseOperationException {
         String sql = "DELETE FROM exercises WHERE id = ?";
 
